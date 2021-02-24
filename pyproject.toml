@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "IEXDiscordBot"
+version = "0.1.0"
+description = ""
+authors = ["Roderick Buo <rbuo@ucmerced.edu>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+"discord.py" = "1.6.0"
+pandas = "^1.2.2"
+python-dotenv = "^0.15.0"
+requests = "^2.25.1"
+asyncio = "^3.4.3"
+pandas-datareader = "^0.9.0"
+DateTime = "^4.3"
+statistics = "^1.0.3"
+numpy = "^1.20.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+pylint = "^2.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
