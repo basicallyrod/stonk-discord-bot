@@ -13,8 +13,6 @@ from datetime import timedelta, date, datetime
 """IEX Variables[Sandbox/Stable]"""
 
 load_dotenv()
-#IEX_API_KEY = 'pk_f2b12e738efc48ffbac89e2a756fb545'
-#IEX_API_KEY ='Tpk_c25278fb5799400b816ae24f8d24acf8'
 IEX_API_KEY = os.getenv('IEX_API_KEY')
 #os.environ['IEX_API_VERSION'] = 'iexcloud-sandbox'
 base_url = 'https://cloud.iexapis.com/'
