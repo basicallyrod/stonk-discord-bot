@@ -18,7 +18,7 @@ from iexdiscordbot.helper.closingpricehelper import closingPrices
 
 load_dotenv()
 IEX_API_KEY = os.getenv('IEX_API_KEY')
-base_url = 'https://cloud.iexapis.com/'
+base_url = 'https://sandbox.iexapis.com/'
 version = 'stable/'
 
 """Asyncio Declaration"""
@@ -33,17 +33,19 @@ class rsi(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print('RSI Command Loaded')
-        
+
 #Calculate RSI Here
 
     """
 Future iterations:
 Look at the whole month(28 days) and starting from the 14th day of the month, we can use the 1st day of the month as data for the RS/RSI calculation
+
+*** Implement a rolling period window to make it easier to calculate the RSI***
     """
     @commands.command()
-    async def rsi(ctx, member: discord.Member, *, message):
+    async def rsi(self, ctx, *, message):
 
-        #Step 1: Calculate the price movement everyday. 
+        #Step 1: Calculate the price movement everyday.
         print(f'STEP ONE: Pulling the Data')
 
         #Native IEX Method
@@ -54,19 +56,19 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
 
         aggregatedPandasData = pdRSI[['date','close']]
 
-        
+
         #print(f'Pandas Data Frame: \n{aggregatedPandasData}\n len : {len(aggregatedPandasData)}')
 
         #helper.ta.momentum.rsi.priceDelta
-        """         
+        """
         #Declare/Initialize an array to  hold the closing prices of each day.
         #We only need to call the closing price of the stock the previous 14 days
         #Append the data from the pd.DataFrame into a LIST so we can manage the data locally.
-        #Write a while loop here to put the iloc values into a list 
+        #Write a while loop here to put the iloc values into a list
         """
         date = []
         closingPrice = []
-        
+
 
         """Appending the value of the row to the closingPrices list"""
 
@@ -94,7 +96,7 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
         #cphelp.dates(aggregatedPandasData)
 
         #print(f' closing price of index : {closingPrice}\ndate : {date}')
-        
+
         #Step 2: Gather the average gain and loss over the last 14 days.
         #Initialize the gains and one for the losses
 
@@ -104,12 +106,12 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
         avgGain = []
         avgLoss = []
         maxLength = len(aggregatedPandasData) - 1 #this is because len starts from 1 and not 0.
-        
+
         #By using both the row and the column
         print(f'STEP 2: Calculating the RSI')
 
         """STEP 2.1 : Gathers all priceDeltas between each market day and seperates the gains from the losses"""
-        
+
 
         """For Loop Version: Iterate this later"""
         maxRange = range(len(closingPrice)-1)
@@ -126,7 +128,7 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
                 priceDelta = closingPrice[x] - closingPrice[x+1]
                 loss.append(priceDelta)
                 gain.append(0)
-    
+
         print(f'gain : {gain}\nloss : {loss}\n')
 
         """STEP 2.2: Calculate the Total Possible Gain/Loss for the 14 day period"""
@@ -172,7 +174,7 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
                 print(f'X: {x}; Current RS: {RS[x]}; Current RSI : {RSI[x]}')
             else:
                 print(f'RSI error')
-        
+
         # start_date = (datetime.now() + timedelta(days = -5)) #this should be a 5 days range
         # end_date = datetime.now()
         # #delta = timedelta(days = 1)
@@ -181,19 +183,18 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
         #typeTester = np.dtype(date)
         #print(f'{typeTester}')
         #print(f'Date : {len(date)}\nCurrent RS : {len(RS)}\nCurrent RSI : {len(RSI)}')
-        #print(f'Date : {date}\nCurrent RS : {RS}\nCurrent RSI : {RSI}')
-        print(f'Date : {date[-5:]}\nCurrent RS : {RS[-5:]}\nCurrent RSI : {RSI[-5:]}') #date is the 15th and rs is the 14th
+        print(f'Date : {date}\nCurrent RS : {RS}\nCurrent RSI : {RSI}')
+        #print(f'Date : {date[-5:]}\nCurrent RS : {RS[-5:]}\nCurrent RSI : {RSI[-5:]}') #date is the 15th and rs is the 14th
         #Step 4: Output the values
 
         embed = discord.Embed(
             title=message,
-            #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}', 
+            #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
             description=''.join(f'RSI: {RSI[-5:]}'),
             colour=discord.Color.green()
             )
 
-        await member.send(embed=embed)
-        
+        await ctx.send(embed=embed)
+
 def setup(client):
     client.add_cog(rsi(client))
-

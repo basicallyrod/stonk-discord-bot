@@ -40,13 +40,14 @@ class stock(commands.Cog):
 
     #$stock {ticker_symbol}
     @commands.command()
-    async def stock(ctx, member: discord.Member, *, message):
+    #async def stock(ctx, member: discord.Member, *, message):
+    async def stock(self, ctx, *, message):
         #symbol_param = message
         #field_param = 'latestPrice'
         api_call = f'{base_url+version}stock/{message}/quote?token={IEX_API_KEY}'
 
         requestQuote = requests.get(api_call)
-        #requestTechnicalIndicators = 
+        #requestTechnicalIndicators =
 
         dataQuote = requestQuote.json()
         latestPrice = dataQuote['latestPrice']
@@ -57,23 +58,19 @@ class stock(commands.Cog):
         #     messageColour = discord.Color.red()
         # else:
         #     messageColour = discord.Color.green()
-        if '-' in message:
-            print('found -') 
+        # if '-' in message:
+        #     print('found -')
         #messageData = f'latest price: {latestPrice}.join \nchangePercent : {changePercent}'
         embed = discord.Embed(
             title=message,
-            #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}', 
+            #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
             description=''.join(f'latest price: {latestPrice} \nchangePercent : {changePercent}\nlatestVolume : {latestVolume}'),
             #colour=messageColour
             )
+        #print(f'{member}')
+        #await member.send(embed=embed)
+        await ctx.send(embed=embed)
 
-        await member.send(embed=embed)
 
-    @commands.command()
-    async def about(ctx, member: discord.Member, *, message):
-        print(f'')
-        
-        
 def setup(client):
     client.add_cog(stock(client))
-
