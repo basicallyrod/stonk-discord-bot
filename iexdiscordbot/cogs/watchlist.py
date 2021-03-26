@@ -1,6 +1,6 @@
 import discord
 import os
-from discord.ext import commands
+from discord.ext import tasks, commands
 from dotenv import load_dotenv
 import requests
 import json
@@ -47,10 +47,10 @@ class watchlist(commands.Cog):
     async def watchlist(self, ctx, *, message):
         #if(user == None):
         #        user = ctx.message.author
-        messageArgs = message.split() 
+        messageArgs = message.split()
         watchlist = []
         #user = member.message.author #ctx.message.author
-        
+
         #print(f"Author: {message.author}")
         if messageArgs[0] == 'add' or '-a':
             #print(author)
@@ -60,14 +60,13 @@ class watchlist(commands.Cog):
             #save the message to the database using the discord.Member
             embed = discord.Embed(
                 title=ctx.author,
-                #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}', 
+                #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
                 description=messageArgs[1],
                 colour=discord.Color.green()
                 )
             return
             await member.send(embed=embed)
 
-        
+
 def setup(client):
     client.add_cog(watchlist(client))
-

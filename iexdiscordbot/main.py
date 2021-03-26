@@ -1,44 +1,52 @@
 import discord
 import os
-from discord.ext import commands
+from discord.ext import tasks, commands
 from dotenv import load_dotenv
 import asyncio
+import tracemalloc
 import numpy
 import pandas
 import requests
+import asyncpg
+
+from iexdiscordbot.database.config import config
+
+#tracemalloc.start()
+
+async def connect():
+    connection = None
+    try:
+        params = config()
+        print('Connecting to the postgreSQL database...')
+        connection = await asyncpg.connect(**params)
+
+        #create a cursor
+        async with connection.transaction():
+            crsr = await connection.cursor('SELECT version()')
+            #await crsr.execute('SELECT version()') #use this coroutine to execute an SQL command
+
+        #run the query SQL input here, have atleast the watchlist command output here
+            db_version = await crsr.fetchrow()
+            print(f'PostgreSQL database version: {db_version}')
+
+
+            #print(db_version)
+            #await crsr.close() #We do not need to use close because it is done automatically
+    # except(Exception, asyncpg.DatabaseError) as error:
+    #     print(f'Exception: {error}')
+    #     print(error)
+    finally:
+        if connection is not None:
+            await connection.close()
+            print('Database connection terminated.')
+
+#loop = asyncio.get_event_loop().run_until_complete(connect)
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 
-""" IEX_TOKEN = os.getenv('IEX_TOKEN')
-
-base_url = 'https://sandbox.iexapis.com/'
-version = 'stable/'
-
-symbol_param = 'PLTR'
-#for using the chart endpoint
-#range_param = '1d'
-#endpoint_path = f'stock/{symbol_param}/chart/{range_param}'
-
-#for using the quote end point
-field_param = 'latestPrice'
-endpoint_path = f'stock/{symbol_param}/quote/{field_param}'
-
-query_params = f'?token={IEX_TOKEN}'
-api_call = f'{base_url}{version}{endpoint_path}{query_params}'
-print(f'API Calls: {api_call}')
-
-r = requests.get(api_call)
-data = r.json()
-print(f'\nHeaders: {r.headers}')
-print(f"IEX Cloud Messages Used: {r.headers['iexcloud-messages-used']}")
-print(f'\nData: {data}')
-#take this data and split it into packs of 5po """
-
 #client = discord.Client()
 client = commands.Bot(command_prefix = '$')
-
-
 
 @client.command(pass_context=True)
 async def load(ctx, extension):
@@ -52,4 +60,7 @@ for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
         client.load_extension(f'cogs.{filename[:-3]}')
 
-client.run(DISCORD_TOKEN)
+
+if __name__ == "__main__":
+    asyncio.run(connect())
+    asyncio.run(client.run(DISCORD_TOKEN))
