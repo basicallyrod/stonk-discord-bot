@@ -3,59 +3,79 @@ import numpy as np
 import json
 import asyncio
 
-#from iexdiscordbot.helper.movingaverage.simplemovingaverage import sma, ema
+from iexdiscordbot.helper.movingaverage import sma, ema, rolling_std, ewm_std
 
+def typicalPriceHelper(data, method):
+    open = data['open']
+    high = data['high']
+    low = data['low']
+    close = data['close']
+    hl2 = (data['high'] + data['low'] + data['close']) / 2
+    hlc3 = (data['high'] + data['low'] + data['close']) / 3
+    ohlc4 = (data['open'] + data['high'] + data['low'] + data['close']) / 4
+    formula =  {
+        'open' : open,
+        'high' : high,
+        'low' : low,
+        'close' : close,
+        'hl2' : hl2,
+        'hlc3' : hlc3,
+        'ohlc4' : ohlc4
+    }
+    typicalPrice = formula[method]
+    #print(f'helper/movingaverage.typicalPriceHelper typicalPrice:{typicalPrice}')
+    return typicalPrice
 
-
-def LowerBand(data, smooth, n):
-    typicalPrice = (data['high'] + data['low'] + data['close']) / 3
-    rolling_mean = typicalPrice.rolling(window = n, min_periods=1).mean()
-    rolling_std = typicalPrice.rolling(window = n).std(ddof=0)
-    print(f'typicalPrice: {typicalPrice}')
-    print(f'LowerBand smooth: {smooth}')
-    print(f'rolling_mean: {rolling_mean}')
-    print(f'rolling_std: {rolling_std}')
+def LowerBand(data, smooth, n, method):
+    typicalPrice = typicalPriceHelper(data, method)
+    # print(f'typicalPrice: {typicalPrice}')
+    #print(f'method: {method}')
+    #print(f'LowerBand smooth: {smooth}')
+    #print(f'rolling_mean: {rolling_mean}')
+    #print(f'rolling_std: {rolling_std}')
     if smooth == 'sma':
-        lowerband = pd.Series(rolling_mean - rolling_std * 2)
-        print(f'sma : \n{lowerband}')
+        lowerband = sma(typicalPrice, n) - (rolling_std(typicalPrice, n) * 2)
+        #print(f'sma : \n{lowerband}')
+        #typicalPrice.empty()
         return lowerband
     elif smooth == 'ema':
-        lowerband = pd.Series(typicalPrice.ewm(span = n, adjust = False).mean() - (2 * typicalPrice.ewm(span = n, adjust = False).std(ddof=0)))
-        print(f'ema : \n{lowerband}')
+        lowerband = ema(typicalPrice, n) - (2 * ewm_std(typicalPrice, n))
+        #print(f'ema : \n{lowerband}')
+        #typicalPrice.empty()
         return lowerband
     else:
         print(f'LowerBand error')
 
-def MiddleBand(data, smooth, n):
-    typicalPrice = (data['high'] + data['low'] + data['close']) / 3
-    rolling_mean = typicalPrice.rolling(window = n, min_periods=1).mean()
-    rolling_std = typicalPrice.rolling(window = n).std(ddof=0)
+def MiddleBand(data, smooth, n, method):
+    typicalPrice = typicalPriceHelper(data,method)
     #print(f'typicalPrice: {typicalPrice}')
-    print(f'MiddleBand smooth: {smooth}')
+    #print(f'MiddleBand smooth: {smooth}')
     if smooth == 'sma':
-        middleband = pd.Series(rolling_mean)
-        print(f'sma : \n{middleband}')
+        middleband = sma(typicalPrice, n)
+        #typicalPrice.empty()
+        #print(f'sma : \n{middleband}')
         return middleband
     elif smooth == 'ema':
-        middleband = pd.Series(typicalPrice.ewm(span = n, adjust = False).mean())
-        print(f'ema : \n{middleband}')
+        middleband = ema(typicalPrice, n)
+        #typicalPrice.empty()
+        #print(f'ema : \n{middleband}')
         return middleband
     else:
         print(f'MiddleBand error')
 
-def HigherBand(data, smooth, n):
-    typicalPrice = (data['high'] + data['low'] + data['close']) / 3
-    rolling_mean = typicalPrice.rolling(window = n, min_periods=1).mean()
-    rolling_std = typicalPrice.rolling(window = n).std(ddof=0)
+def HigherBand(data, smooth, n, method):
+    typicalPrice = typicalPriceHelper(data, method)
     #print(f'typicalPrice: {typicalPrice}')
-    print(f'HigherBand smooth method: {smooth}')
+    #print(f'HigherBand smooth method: {smooth}')
     if smooth == 'sma':
-        higherband = pd.Series(rolling_mean + (2 * rolling_std))
-        print(f'sma : \n{higherband}')
+        higherband = sma(typicalPrice, n) + (2 * rolling_std(typicalPrice, n))
+        #typicalPrice.empty()
+        #print(f'sma : \n{higherband}')
         return higherband
     elif smooth == 'ema':
-        higherband = pd.Series(typicalPrice.ewm(span = n, adjust = False).mean() + (2 * typicalPrice.ewm(span = n, adjust = False).std(ddof=0)))
-        print(f'ema : \n{higherband}')
+        higherband = ema(typicalPrice, n) + (2 * ewm_std(typicalPrice, n))
+        #typicalPrice.empty()
+        #print(f'ema : \n{higherband}')
         return higherband
     else:
         print(f'HigherBand error')

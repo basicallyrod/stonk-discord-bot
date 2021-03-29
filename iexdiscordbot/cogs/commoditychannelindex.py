@@ -62,7 +62,16 @@ class cci(commands.Cog):
         #print(f'{data['high']} + {data['low']} + {data['close']}')
         CCI = pd.Series((typicalPrice - typicalPrice.rolling(20).mean()) / (0.015 * typicalPrice.rolling(20).std()), name = 'CCI')
         data = data.join(CCI)
-        print(f'{typicalPrice} \n {CCI}')
+        #print(f'{typicalPrice} \n {CCI}')
+
+        embed = discord.Embed(
+            title=message,
+            #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
+            description=''.join(f'CCI: {CCI[-5:]}'),
+            colour=discord.Color.green()
+            )
+
+        await ctx.send(embed=embed)
 
 def setup(client):
     client.add_cog(cci(client))

@@ -13,6 +13,8 @@ from datetime import timedelta, date, datetime
 #import iexdiscordbot.helper.closingpricehelper as cphelp
 
 from iexdiscordbot.helper.indicators.volatility.bollingerbands import LowerBand, MiddleBand, HigherBand
+#from iexdiscordbot.helper.movingaverage import typicalPriceHelper
+#from iexdiscordbot.helper.indicators.volatility.bollingerbands import MiddleBand
 """IEX Variables[Sandbox/Stable]"""
 
 load_dotenv()
@@ -43,35 +45,38 @@ class bb(commands.Cog):
         dataHistoricalPrices = requestHistoricalPrices.json()
         data = pd.DataFrame(dataHistoricalPrices)
 
-        # aggregatedData = data[['high','low', 'close', 'date']]
-        print(f'{data}')
-        #
-        # date = []
-        # high = []
-        # low = []
-        # closingPrice = []
-        #
-        # for label, row in aggregatedData.iterrows():
-        #    date.append(row['date'])
-        #    high.append(row['high'])
-        #    low.append(row['low'])
-        #    closingPrice.append(row['close'])
+        #print(f'{data}')
 
-        #typicalPrice = (data['high'] + data['low'] + data['close']) / 3
-        #print(f'{data['high']} + {data['low']} + {data['close']}')
         sma = 'sma'
         ema = 'ema'
-        LowerBand(data, sma, 10)
-        MiddleBand(data, sma, 10)
-        HigherBand(data, sma, 10)
-
+        smoothtype = sma
+        method = 'hlc3'
+        n = 10
+        #typicalPrice = typicalPriceHelper(data, method)
+        #print(f'cogs/bollingerbands typicalPrice: {typicalPrice}')
+        lowerband = LowerBand(data, smoothtype, n, method)
+        middleband = MiddleBand(data, smoothtype, n, method)
+        higherband = HigherBand(data, smoothtype, n, method)
         # LowerBand(data, ema, 10)
         # MiddleBand(data, ema, 10)
         # HigherBand(data, ema, 10)
+        print(f'lowerband: {lowerband}\n middleband: {middleband}\n higherband: {higherband}')
+
+
+
+
 
         #BOLD = pd.Series(typicalPrice.rolling(20).mean() - )
         #data = data.join(CCI)
         #print(f'{typicalPrice} \n {BOLU} \n {BOLD}')
+        embed = discord.Embed(
+            title=message,
+            #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
+            description=''.join(f'lowerband: {lowerband[-5:]}\n middleband: {middleband[-5:]}\n higherband: {higherband[-5:]}'),
+            colour=discord.Color.green()
+            )
+
+        await ctx.send(embed=embed)
 
 def setup(client):
     client.add_cog(bb(client))
