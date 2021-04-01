@@ -40,7 +40,15 @@ class macd(commands.Cog):
         macd = ema(data['close'], 12) - ema(data['close'], 26)
         signal_line = ema(macd, 9)
 
-        print(f'macd: {macd}\n\nsignal_line: {signal_line}')
+        #print(f'macd: {macd}\n\nsignal_line: {signal_line}')
+        embed = discord.Embed(
+            title=message,
+            #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
+            description=''.join(f'macd: {macd}\nsignal_line: {signal_line}'),
+            colour=discord.Color.green()
+            )
+
+        await ctx.send(embed=embed)
 
 def setup(client):
     client.add_cog(macd(client))
