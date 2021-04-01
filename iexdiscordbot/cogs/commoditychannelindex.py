@@ -12,7 +12,8 @@ import tracemalloc
 
 #import iexdiscordbot.helper.closingpricehelper as cphelp
 
-from iexdiscordbot.helper.closingpricehelper import closingPrices
+#from iexdiscordbot.helper.closingpricehelper import closingPrices
+from iexdiscordbot.helper.indicators.momentum.commodity import typicalPriceHelper, cciHelper
 
 """IEX Variables[Sandbox/Stable]"""
 
@@ -44,30 +45,34 @@ class cci(commands.Cog):
         dataHistoricalPrices = requestHistoricalPrices.json()
         data = pd.DataFrame(dataHistoricalPrices)
 
-        aggregatedData = data[['high','low', 'close', 'date']]
+        #aggregatedData = data[['high','low', 'close', 'date']]
         print(f'{data}')
 
-        date = []
-        high = []
-        low = []
-        closingPrice = []
+        # date = []
+        # high = []
+        # low = []
+        # closingPrice = []
 
-        for label, row in aggregatedData.iterrows():
-           date.append(row['date'])
-           high.append(row['high'])
-           low.append(row['low'])
-           closingPrice.append(row['close'])
+        # for label, row in aggregatedData.iterrows():
+        #    date.append(row['date'])
+        #    high.append(row['high'])
+        #    low.append(row['low'])
+        #    closingPrice.append(row['close'])
+        method = 'hlc3'
 
-        typicalPrice = (data['high'] + data['low'] + data['close']) / 3
+        typicalPrice = typicalPriceHelper(data, method)
+        #typicalPrice = (data['high'] + data['low'] + data['close']) / 3
         #print(f'{data['high']} + {data['low']} + {data['close']}')
-        CCI = pd.Series((typicalPrice - typicalPrice.rolling(20).mean()) / (0.015 * typicalPrice.rolling(20).std()), name = 'CCI')
-        data = data.join(CCI)
+        #CCI = pd.Series((typicalPrice - typicalPrice.rolling(20).mean()) / (0.015 * typicalPrice.rolling(20).std()), name = 'CCI')
+        #data = data.join(CCI)
+        cci = cciHelper(typicalPrice)
         #print(f'{typicalPrice} \n {CCI}')
+        print(f'{cci}')
 
         embed = discord.Embed(
             title=message,
             #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
-            description=''.join(f'CCI: {CCI[-5:]}'),
+            description=''.join(f'CCI: {cci[-5:]}'),
             colour=discord.Color.green()
             )
 

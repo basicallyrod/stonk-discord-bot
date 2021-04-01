@@ -12,7 +12,7 @@ import tracemalloc
 
 #import iexdiscordbot.helper.closingpricehelper as cphelp
 
-from iexdiscordbot.helper.closingpricehelper import closingPrices
+#from iexdiscordbot.helper.closingpricehelper import closingPrices
 
 """IEX Variables[Sandbox/Stable]"""
 

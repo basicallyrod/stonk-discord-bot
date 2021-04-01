@@ -1,17 +1,17 @@
-from pandas import DataFrame as df
-import tracemalloc
+from pandas import Series as s
+#import tracemalloc
 from datetime import timedelta, date, datetime
 import asyncio
 
-loop = asyncio.get_event_loop()
-async def closingPrices(data):
-    date = []
-    closingPrice = []
+#loop = asyncio.get_event_loop()
+def priceHelper(data, type):
+    #date = []
+    price = []
 
-    print(f'Pandas Data Frame: \n{data}')
-    for label, row in df.iterrows(data):
-        closingPrice.append(row['close'])
-        date.append(row['date'])
+    #print(f'Pandas Data Frame: \n{data}')
+    for index, item in s.items(data):
+        price.append(item)
+        #date.append(row['date'])
         #print(f'Closing Price: {closingPrice}\ndate: {date} ')
 
-    await closingPrice, date
+    return price
