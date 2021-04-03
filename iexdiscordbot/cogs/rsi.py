@@ -9,6 +9,9 @@ import numpy as np
 import pandas as pd
 from datetime import timedelta, date, datetime
 import tracemalloc
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+#import Image
 
 #import iexdiscordbot.helper.closingpricehelper as cphelp
 
@@ -18,7 +21,7 @@ import tracemalloc
 
 load_dotenv()
 IEX_API_KEY = os.getenv('IEX_API_KEY')
-base_url = 'https://sandbox.iexapis.com/'
+base_url = 'https://cloud.iexapis.com/'
 version = 'stable/'
 
 """Asyncio Declaration"""
@@ -186,15 +189,28 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
         print(f'Date : {date}\nCurrent RS : {RS}\nCurrent RSI : {RSI}')
         #print(f'Date : {date[-5:]}\nCurrent RS : {RS[-5:]}\nCurrent RSI : {RSI[-5:]}') #date is the 15th and rs is the 14th
         #Step 4: Output the values
+        print(f'date length = {len(date[15:])}')
+        print(f'RS length = {len(RSI[14:])}')
+        #Step 5: Plot the values
+        plt.plot(date[15:], RSI[14:])
+        plt.ylabel('Relative Strength')
+        plt.xlabel('Date')
+        #plt.show()
+        plt.savefig('rsi.jpg')
+        plt.close()
 
+        file = discord.File('rsi.jpg')
         embed = discord.Embed(
             title=message,
             #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
             description=''.join(f'RSI: {RSI[-5:]}'),
             colour=discord.Color.green()
             )
+        embed.set_image(url='attachment://rsi.jpg')
 
-        await ctx.send(embed=embed)
+        await ctx.send(file = file, embed=embed)
+
+
 
 def setup(client):
     client.add_cog(rsi(client))

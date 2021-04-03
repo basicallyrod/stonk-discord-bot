@@ -8,6 +8,8 @@ import json
 import numpy as np
 import pandas as pd
 from datetime import timedelta, date, datetime
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 #from iexdiscordbot.helper.trend.macd import
 from iexdiscordbot.helper.movingaverage import ema
@@ -40,15 +42,29 @@ class macd(commands.Cog):
         macd = ema(data['close'], 12) - ema(data['close'], 26)
         signal_line = ema(macd, 9)
 
-        #print(f'macd: {macd}\n\nsignal_line: {signal_line}')
+        date = data['date']
+
+        print(f'date length = {len(date[14:])}')
+        print(f'macd length = {len(macd[14:])}')
+        print(f'signal_line length = {len(signal_line[14:])}')
+        print(f'macd: {macd}\n\nsignal_line: {signal_line}')
+        plt.plot(date[14:], macd[14:], label = 'macd')
+        plt.plot(date[14:], signal_line[14:], label = 'signal line')
+        plt.ylabel('MACD')
+        plt.xlabel('Date')
+        #plt.show()
+        plt.savefig('macd.jpg')
+        plt.close()
+        file = discord.File('macd.jpg')
         embed = discord.Embed(
             title=message,
             #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
-            description=''.join(f'macd: {macd}\nsignal_line: {signal_line}'),
+            #description=''.join(f'macd: {macd}\nsignal_line: {signal_line}'),
             colour=discord.Color.green()
             )
+        embed.set_image(url='attachment://macd.jpg')
 
-        await ctx.send(embed=embed)
+        await ctx.send(file = file, embed=embed)
 
 def setup(client):
     client.add_cog(macd(client))
