@@ -9,8 +9,9 @@ import numpy as np
 import pandas as pd
 from datetime import timedelta, date, datetime
 import tracemalloc
-
-#import iexdiscordbot.helper.closingpricehelper as cphelp
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from iexdiscordbot.helper.movingaverage import sma
 
 #from iexdiscordbot.helper.closingpricehelper import closingPrices
 
@@ -18,7 +19,7 @@ import tracemalloc
 
 load_dotenv()
 IEX_API_KEY = os.getenv('IEX_API_KEY')
-base_url = 'https://sandbox.iexapis.com/'
+base_url = 'https://cloud.iexapis.com/'
 version = 'stable/'
 
 """Asyncio Declaration"""
@@ -104,6 +105,7 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
         avgGain = []
         avgLoss = []
         maxLength = len(aggregatedPandasData) - 1 #this is because len starts from 1 and not 0.
+        print(f'maxLength : {maxLength}')
 
         #By using both the row and the column
         print(f'STEP 2: Calculating the RSI')
@@ -113,6 +115,7 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
 
         """For Loop Version: Iterate this later"""
         maxRange = range(len(closingPrice)-1)
+        print(f'maxRange: {maxRange}')
         for x in maxRange:
             if x == 0:
                 gain.append(0)
@@ -185,6 +188,7 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
         #print(f'Date : {date[-14:]}\nCurrent RS : {RS[-14:]}\nCurrent RSI : {RSI[-14:]}') #date is the 15th and rs is the 14th
 
         StochRSI = []
+        maStochRSI = []
         #Step 4: Calculate the Stochastic RSI
         # (Current RSI - min RSI ) / (max RSI - min RSI)
         for x in maxRange:
@@ -195,21 +199,47 @@ Look at the whole month(28 days) and starting from the 14th day of the month, we
                 minRSI = min(RSI[x-14:x])
                 maxRSI  = max(RSI[(x-14):x])
                 valueStochRSI = ((currentRSI - minRSI) / (maxRSI - minRSI))
-                print(f'{currentRSI} | {minRSI} | {maxRSI} | {valueStochRSI}')
+                print(f'{x} | {currentRSI} | {minRSI} | {maxRSI} | {valueStochRSI}')
                 StochRSI.append(valueStochRSI)
             else:
                 print(f'Stoch RSI error')
 
+        for x in maxRange:
+            if x <= 40:
+                maStochRSI.append(0)
+            elif(x > 40 & (maxLength - 1)):
+                valueMAStochRSI = sum(StochRSI[(x-14):x])/14
+                maStochRSI.append(valueMAStochRSI)
+                print(f'{x} | {valueMAStochRSI}')
+            else:
+                print(f'maStochRSI error')
+
+        #maStochRSI = sma(StochRSI, 14)
+        print(f'maStochRSI: {maStochRSI}')
+
+        print(f'date length = {len(date)}')
+        print(f'StochRS length = {len(StochRSI)}')
+        print(f'maStochRS length = {len(maStochRSI)}')
+        #Step 5: Plot the values
+        plt.plot(date[41:], StochRSI[40:])
+        plt.plot(date[41:], maStochRSI[40:])
+        plt.ylabel('Stoch RSI')
+        plt.xlabel('Date')
+        #plt.show()
+        plt.savefig('stochrsi.jpg')
+        plt.close()
 
         #Step 5: Output the values
+        file = discord.File('stochrsi.jpg')
         embed = discord.Embed(
             title=message,
             #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
             description=''.join(f'Stochastic RSI: {StochRSI[-31:]}'),
             colour=discord.Color.green()
             )
+        embed.set_image(url='attachment://stochrsi.jpg')
 
-        await ctx.send(embed=embed)
+        await ctx.send(file = file, embed=embed)
 
 def setup(client):
     client.add_cog(stochrsi(client))
