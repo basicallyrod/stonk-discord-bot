@@ -8,6 +8,8 @@ import json
 import numpy as np
 import pandas as pd
 from datetime import timedelta, date, datetime
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 #import tracemalloc
 
 #import iexdiscordbot.helper.closingpricehelper as cphelp
@@ -60,7 +62,25 @@ class bb(commands.Cog):
         # LowerBand(data, ema, 10)
         # MiddleBand(data, ema, 10)
         # HigherBand(data, ema, 10)
-        print(f'lowerband: {lowerband}\n middleband: {middleband}\n higherband: {higherband}')
+        print(f'lowerband: {lowerband[0:30]}\n middleband: {middleband[0:30]}\n higherband: {higherband[0:30]}')
+
+        date = data['date']
+        lenDate = len(date)
+        lenLower = len(lowerband)
+        lenMiddle = len(middleband)
+        lenHigher = len(higherband)
+        print(f'date length = {lenDate}')
+        print(f'lowerband length = {lenLower}')
+        print(f'middleband length = {lenMiddle}')
+        print(f'higherband length = {lenHigher}')
+        plt.plot(date[9:], lowerband[9:], label = 'lowerband')
+        plt.plot(date[9:], middleband[9:], label = 'middleband')
+        plt.plot(date[9:], higherband[9:], label = 'higherband')
+        plt.ylabel('bollingerbands')
+        plt.xlabel('Date')
+        plt.savefig('bollingerbands.jpg')
+        plt.close()
+        file = discord.File('bollingerbands.jpg')
 
 
 
@@ -75,8 +95,9 @@ class bb(commands.Cog):
             description=''.join(f'lowerband: {lowerband[-5:]}\n middleband: {middleband[-5:]}\n higherband: {higherband[-5:]}'),
             colour=discord.Color.green()
             )
-
-        await ctx.send(embed=embed)
+        embed.set_image(url='attachment://bollingerbands.jpg')
+        #await ctx.send(embed=embed)
+        await ctx.send(file = file, embed=embed)
 
 def setup(client):
     client.add_cog(bb(client))

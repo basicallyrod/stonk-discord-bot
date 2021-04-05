@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 from datetime import timedelta, date, datetime
 import tracemalloc
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 #import iexdiscordbot.helper.closingpricehelper as cphelp
 
@@ -69,14 +71,28 @@ class cci(commands.Cog):
         #print(f'{typicalPrice} \n {CCI}')
         print(f'{cci}')
 
+        date = data['date']
+        lenDate = len(date)
+        lenCCI = len(cci)
+        print(f'date length = {lenDate}')
+        print(f'cci length = {lenCCI}')
+        plt.plot(date[19:], cci[19:], label = 'cci')
+        plt.ylabel('cci')
+        plt.xlabel('Date')
+        plt.savefig('cci.jpg')
+        plt.close()
+        file = discord.File('cci.jpg')
+
+
         embed = discord.Embed(
             title=message,
             #description=f'latest price: {latestPrice}.join, changePercent : {changePercent}',
             description=''.join(f'CCI: {cci[-5:]}'),
             colour=discord.Color.green()
             )
-
-        await ctx.send(embed=embed)
+        embed.set_image(url='attachment://cci.jpg')
+        #await ctx.send(embed=embed)
+        await ctx.send(file = file, embed=embed)
 
 def setup(client):
     client.add_cog(cci(client))

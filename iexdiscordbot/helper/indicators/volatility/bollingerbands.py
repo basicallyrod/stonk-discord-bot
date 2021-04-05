@@ -37,12 +37,12 @@ def LowerBand(data, smooth, n, method):
         lowerband = sma(typicalPrice, n) - (rolling_std(typicalPrice, n) * 2)
         #print(f'sma : \n{lowerband}')
         #typicalPrice.empty()
-        return lowerband
+        return lowerband.to_numpy()
     elif smooth == 'ema':
         lowerband = ema(typicalPrice, n) - (2 * ewm_std(typicalPrice, n))
         #print(f'ema : \n{lowerband}')
         #typicalPrice.empty()
-        return lowerband
+        return lowerband.to_numpy()
     else:
         print(f'LowerBand error')
 
@@ -54,12 +54,12 @@ def MiddleBand(data, smooth, n, method):
         middleband = sma(typicalPrice, n)
         #typicalPrice.empty()
         #print(f'sma : \n{middleband}')
-        return middleband
+        return middleband.to_numpy()
     elif smooth == 'ema':
         middleband = ema(typicalPrice, n)
         #typicalPrice.empty()
         #print(f'ema : \n{middleband}')
-        return middleband
+        return middleband.to_numpy()
     else:
         print(f'MiddleBand error')
 
@@ -71,11 +71,11 @@ def HigherBand(data, smooth, n, method):
         higherband = sma(typicalPrice, n) + (2 * rolling_std(typicalPrice, n))
         #typicalPrice.empty()
         #print(f'sma : \n{higherband}')
-        return higherband
+        return higherband.to_numpy()
     elif smooth == 'ema':
         higherband = ema(typicalPrice, n) + (2 * ewm_std(typicalPrice, n))
         #typicalPrice.empty()
         #print(f'ema : \n{higherband}')
-        return higherband
+        return higherband.to_numpy()
     else:
         print(f'HigherBand error')
