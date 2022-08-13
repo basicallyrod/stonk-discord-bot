@@ -1,7 +1,3 @@
-# db_host="localhost"
-# db_database="iexDiscordDB"
-# db_user="postgres"
-# db_password="1234"
 import discord
 from discord.ext import commands
 import asyncpg
